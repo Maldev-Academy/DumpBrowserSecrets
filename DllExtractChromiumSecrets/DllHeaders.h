@@ -2,15 +2,9 @@
 #ifndef DLL_HEADERS_H
 #define DLL_HEADERS_H
 
-#include <Windows.h>
-#include <shlwapi.h>
-#include <strsafe.h>
-
 // Set The DLL's DBGA Macro Version
 #define BUILD_AS_DLL    
 #include "Common.h"
-
-#pragma comment(lib, "shlwapi.lib")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 // IElevator Interface (For Chrome And Brave)

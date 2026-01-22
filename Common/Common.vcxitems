@@ -14,10 +14,14 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)Common.c" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)FetchSecretFiles.c" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Common.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Obfuscate.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)Common.h" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Common.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)FetchSecretFiles.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Debug.h" />
   </ItemGroup>
 </Project>
