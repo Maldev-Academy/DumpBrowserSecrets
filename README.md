@@ -48,18 +48,20 @@ This project is an improved version of [DumpChromeSecrets](https://github.com/Ma
 Usage: DumpBrowserSecrets.exe [options]
 
 Options:
-  /b:<browser> Target Browser: chrome, edge, brave, opera, operagx, vivaldi, firefox, all
-               (default: system default browser)
-  /o <file>    Output JSON File (default: <browser>Data.json)
-  /all         Export All Entries (default: max 16 per category)
+  /b:<browser> Target Browser: Chrome, Edge, Brave, Opera, Operagx, Vivaldi, Firefox, All
+               (Default: System Default Browser)
+  /o <file>    Output JSON File (Default: <Browser>Data.json)
+  /spoof       Enable Argument and PPID Spoofing When Retrieving ABE Keys From Chromium-Based Browsers
+  /all         Export All Entries (Default: Max 16 per Category)
   /?           Show This Help Message
 
 Examples:
   DumpBrowserSecrets.exe                            Extract 16 Entries From The Default Browser
-  DumpBrowserSecrets.exe /b:chrome                  Extract 16 Entries From Chrome
+  DumpBrowserSecrets.exe /b:chrome /spoof           Extract 16 Entries From Chrome With PPID and Argument Spoofing
   DumpBrowserSecrets.exe /b:firefox /all            Export All Entries From Firefox
   DumpBrowserSecrets.exe /b:brave /o Output.json    Extract 16 Entries From Brave To Output.json
   DumpBrowserSecrets.exe /b:all /all                Extract All From All Installed Browsers
+
 ```
 
 <br>
